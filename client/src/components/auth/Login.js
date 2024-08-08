@@ -150,7 +150,7 @@ const Login = () => {
 
 
             <h3 className="text-3xl my-8 sm:text-4xl leading-normal font-extrabold tracking-tight text-gray-900">
-              Sign <span className="text-indigo-600">In</span>
+              Sign <span className="text-yellow-600">In</span>
             </h3>
 
 

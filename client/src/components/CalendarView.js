@@ -171,9 +171,9 @@ export const CalendarView = () => {
 <div className="flex flex-col items-center">
 <h1 className="text-xl sm:text-3xl mb-4 md:text-4xl lg:text-3xl xl:text-3xl text-center text-gray-800 font-black leading-7 ml-3 md:leading-10">
           Filters </h1>
-          {/* <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-3xl xl:text-3xl text-center text-indigo-700 font-black leading-7 ml-3 md:leading-10">
+          {/* <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-3xl xl:text-3xl text-center text-yellow-700 font-black leading-7 ml-3 md:leading-10">
           Filters </h1> */}
-          <h2 class="text-xl font-bold mb-4 text-indigo-700 -mt-1">
+          <h2 class="text-xl font-bold mb-4 text-yellow-700 -mt-1">
                 By Hall Name
               </h2>
         

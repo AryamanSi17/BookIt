@@ -7,10 +7,10 @@ const Contact = () => {
           <div className="col-span-1 lg:col-span-9">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl font-bold text-zinc-700">
-                Dr. Nitin Kulkarni
+                Worker 1
               </h2>
               <p className="mt-2 text-l font-semibold text-zinc-700">
-                Faculty Coordinator
+                Position
               </p>
             </div>
 
@@ -21,7 +21,7 @@ const Contact = () => {
 
               <div>
                 <p className="text-m font-semibold text-zinc-700">
-                  nitinkulkarni@acropolis.in
+                 
                 </p>
               </div>
             </div>
@@ -44,10 +44,10 @@ const Contact = () => {
           <div className="col-span-1 lg:col-span-9">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl font-bold text-zinc-700">
-                Siddharth Jain
+              Worker 2
               </h2>
               <p className="mt-2 text-l font-semibold text-zinc-700">
-                Student Coordinator
+               position
               </p>
             </div>
 
@@ -58,7 +58,7 @@ const Contact = () => {
 
               <div>
                 <p className="text-m font-semibold text-zinc-700">
-                  siddharthjain.ca21@acropolis.in
+                 example@gmail.com
                 </p>
               </div>
             </div>
@@ -81,10 +81,10 @@ const Contact = () => {
           <div className="col-span-1 lg:col-span-9">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl font-bold text-zinc-700">
-                Abhishek Kumar
+                Worker 3
               </h2>
               <p className="mt-2 text-l font-semibold text-zinc-700">
-                Student Coordinator
+              Position
               </p>
             </div>
 
@@ -95,7 +95,7 @@ const Contact = () => {
 
               <div>
                 <p className="text-m font-semibold text-zinc-700">
-                  abhishekkumar.ca21@acropolis.in
+                  example2@gmail.com
                 </p>
               </div>
             </div>
@@ -118,10 +118,10 @@ const Contact = () => {
           <div className="col-span-1 lg:col-span-9">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl font-bold text-zinc-700">
-                Sarthak Baderiya
+               Aryaman Sinha
               </h2>
               <p className="mt-2 text-l font-semibold text-zinc-700">
-                Student Coordinator
+                Web Administrator
               </p>
             </div>
 
@@ -132,7 +132,7 @@ const Contact = () => {
 
               <div>
                 <p className="text-m font-semibold text-zinc-700">
-                 sarthakbaderiya.ca21@acropolis.in
+                 aryamansi1712@gmail.com
                 </p>
               </div>
             </div>

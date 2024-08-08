@@ -3,10 +3,6 @@ const Hall = require('../model/hallSchema');
 const User = require('../model/userSchema');
 const nodemailer = require("nodemailer");
 
-
-
-
-
  // transporter for sending email
  const transporter = nodemailer.createTransport({
   service:"gmail",
@@ -16,7 +12,7 @@ const nodemailer = require("nodemailer");
   }
 })
 
-const generateBookingEmailTemplate = (eventName, bookedHallName, organizingClub, institution, department, bookingId) => {
+const generateBookingEmailTemplate = (eventName, bookedHallName, organizingClub, bookingId) => {
   return `
 
 
@@ -80,16 +76,13 @@ const generateBookingEmailTemplate = (eventName, bookedHallName, organizingClub,
                   <h1 style="font-size: 20px; color: #202225; margin-top: 0;">EVENT NAME	 :</h1>
                   <h1 style="font-size: 20px; color: #202225; margin-top: 0;">HALL NAME	 :</h1>
                   <h1 style="font-size: 20px; color: #202225; margin-top: 0;">ORGANIZING CLUB	 :</h1>
-                  <h1 style="font-size: 20px; color: #202225; margin-top: 0;">INSTITUTION :</h1>
-                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">DEPARTMENT :</h1>
+     
                  
                 </div>
                 <div style="flex: 1;">
                   <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${eventName}</h1>
                   <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${bookedHallName}</h1>
                   <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${organizingClub}</h1>
-                  <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${institution}</h1>
-                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${department}</h1>
               
                 </div>
               </div>
@@ -114,10 +107,7 @@ const generateBookingEmailTemplate = (eventName, bookedHallName, organizingClub,
 const createBooking = async (req, res, next) => {
   try {
     const {
-      userId,
       eventManager,
-      department,
-      institution,
       eventName,
       eventDateType,
       eventDate,
@@ -139,79 +129,41 @@ const createBooking = async (req, res, next) => {
       return res.status(422).json({ error: 'Hall not found' });
     }
 
-    
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(422).json({ error: 'user not found' });
-    }
-
-
     if (eventDateType === "full") {
-      if (!eventDate ) {
+      if (!eventDate) {
         return res.status(422).json({ error: "Please fill all details" });
       }
-    }else if(eventDateType === "half") {
-      if (!startTime || !endTime || !eventDate ) {
+    } else if (eventDateType === "half") {
+      if (!startTime || !endTime || !eventDate) {
         return res.status(422).json({ error: "Please fill all details" });
       }
-    }else if(eventDateType === "multiple") {
-      if (!eventStartDate || !eventStartDate ) {
+    } else if (eventDateType === "multiple") {
+      if (!eventStartDate || !eventEndDate) {
         return res.status(422).json({ error: "Please fill all details" });
-      }else{
-
-        // Check if eventStartDate is before eventEndDate
+      } else {
         const eventStartDateTime = new Date(eventStartDate);
         const eventEndDateTime = new Date(eventEndDate);
-        
+
         if (eventEndDateTime <= eventStartDateTime) {
           return res.status(422).json({ error: 'Event end date should be after event start date' });
         }
       }
     }
 
-    if (!eventManager || !phoneNumber  || !department || !institution
-      // || !altNumber 
-      || !eventName || !organizingClub ) {
+    if (!eventManager || !phoneNumber || !eventName || !organizingClub) {
       return res.status(422).json({ error: "Please fill all details" });
-
     }
-    // Regular expression to validate full name with at least two words separated by a space
 
-        const nameRegex = /^[\w'.]+\s[\w'.]+\s*[\w'.]*\s*[\w'.]*\s*[\w'.]*\s*[\w'.]*$/;
-
+    const nameRegex = /^[\w'.]+\s[\w'.]+\s*[\w'.]*\s*[\w'.]*\s*[\w'.]*\s*[\w'.]*$/;
     if (!nameRegex.test(eventManager)) {
       return res.status(422).json({ error: "Please enter your full Event Coordinator name" });
     }
 
-   
-      
-
-    // Phone validation
     if (phoneNumber.length !== 10) {
       return res.status(422).json({ error: "Please enter a valid 10-digit phone number" });
     }
 
-    // if (altNumber.length !== 10) {
-    //   return res.status(422).json({ error: "Please enter a valid 10-digit alternate number" });
-    // }
-
-   // Validate start and end time
-   const startDateTime = new Date(`2000-01-01T${startTime}:00Z`);
-   const endDateTime = new Date(`2000-01-01T${endTime}:00Z`);
-   
-   // Check if end time is after start time
-   if (endDateTime <= startDateTime) {
-     return res.status(422).json({ error: 'End time should be after start time' });
-    }
-
- 
-    
-
     const booking = new Booking({
-
-      userId:user._id,
-      institution,
-      department,
       eventManager,
       eventName,
       eventDateType,
@@ -222,29 +174,21 @@ const createBooking = async (req, res, next) => {
       endTime,
       email,
       bookedHallId: hall._id,
-      bookedHall:hall,
+      bookedHall: hall,
       bookedHallName,
       organizingClub,
-      // eventDetailFile,
-      // eventDetailText,
       phoneNumber,
       altNumber,
       isApproved
     });
-    // await booking.validate();
-    // booking.bookedHallId = hall;
-    // await booking.populate(bookedHallId);
+
     await booking.save();
-
-
-
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: hall.hallCreater, // Use the hall creator's email here
+      to: hall.hallCreater,
       subject: 'New Booking Request',
-      html:   generateBookingEmailTemplate(eventName, bookedHallName, organizingClub, institution, department, booking._id),
-      
+      html: generateBookingEmailTemplate(eventName, bookedHallName, organizingClub, booking._id),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -255,16 +199,15 @@ const createBooking = async (req, res, next) => {
       }
     });
 
-
-  
-
-
-
     res.status(201).json({ message: 'Booking created successfully' });
   } catch (error) {
     next(error);
   }
 };
+
+module.exports = { createBooking };
+
+
 
 
 
@@ -463,7 +406,7 @@ const updateBooking = async (req, res, next) => {
           from: process.env.SENDER_EMAIL,
           to: booking.email, // Use the user's email associated with the booking
           subject: 'Booking Request Approved',
-          html: sendApprovalEmailTemplate(booking.eventName, booking.bookedHallName, booking.organizingClub, booking.institution, booking.department, bookingId),
+          html: sendApprovalEmailTemplate(booking.eventName, booking.bookedHallName, booking.organizingClub, bookingId),
         };
     
         await transporter.sendMail(mailOptions);
@@ -481,7 +424,7 @@ const updateBooking = async (req, res, next) => {
           from: process.env.SENDER_EMAIL,
           to: booking.email, // Use the user's email associated with the booking
           subject: "Booking Request Rejected",
-          html: sendRejectionEmailTemplate(booking.eventName, booking.bookedHallName, booking.organizingClub, booking.institution, booking.department, bookingId ,rejectionReason),
+          html: sendRejectionEmailTemplate(booking.eventName, booking.bookedHallName, booking.organizingClub, bookingId ,rejectionReason),
         };
     
         await transporter.sendMail(mailOptions);
@@ -490,7 +433,7 @@ const updateBooking = async (req, res, next) => {
       }
     };
 
-    const sendRejectionEmailTemplate = (eventName, bookedHallName, organizingClub, institution, department, bookingId ,rejectionReason) => {
+    const sendRejectionEmailTemplate = (eventName, bookedHallName, organizingClub,  bookingId ,rejectionReason) => {
       return `
     
 
@@ -559,16 +502,14 @@ const updateBooking = async (req, res, next) => {
                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">EVENT NAME	 :</h1>
                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">HALL NAME	 :</h1>
                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">ORGANIZING CLUB	 :</h1>
-                      <h1 style="font-size: 20px; color: #202225; margin-top: 0;">INSTITUTION :</h1>
-                           <h1 style="font-size: 20px; color: #202225; margin-top: 0;">DEPARTMENT :</h1>
+                    
                      
                     </div>
                     <div style="flex: 1;">
                     <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${eventName}</h1>
                     <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${bookedHallName}</h1>
                     <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${organizingClub}</h1>
-                    <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${institution}</h1>
-                         <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${department}</h1>
+                  
                 
                   </div>
                   </div>
@@ -589,7 +530,7 @@ const updateBooking = async (req, res, next) => {
       `;
     };
 
-    const sendApprovalEmailTemplate = (eventName, bookedHallName, organizingClub, institution, department, bookingId) => {
+    const sendApprovalEmailTemplate = (eventName, bookedHallName, organizingClub,  bookingId) => {
       return `
     
 
@@ -656,16 +597,14 @@ const updateBooking = async (req, res, next) => {
                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">EVENT NAME	 :</h1>
                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">HALL NAME	 :</h1>
                       <h1 style="font-size: 20px; color: #202225; margin-top: 0;">ORGANIZING CLUB	 :</h1>
-                      <h1 style="font-size: 20px; color: #202225; margin-top: 0;">INSTITUTION :</h1>
-                           <h1 style="font-size: 20px; color: #202225; margin-top: 0;">DEPARTMENT :</h1>
+                   
                      
                     </div>
                     <div style="flex: 1;">
                     <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${eventName}</h1>
                     <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${bookedHallName}</h1>
                     <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${organizingClub}</h1>
-                    <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${institution}</h1>
-                         <h1 style="font-size: 20px; color: #202225; margin-top: 0;">${department}</h1>
+
                 
                   </div>
                   </div>

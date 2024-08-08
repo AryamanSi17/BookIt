@@ -202,7 +202,7 @@ const BookingForm = () => {
             Update Booking
           </p>
           <h3 className="text-3xl sm:text-4xl leading-normal font-extrabold tracking-tight text-gray-900">
-          Update <span className="text-indigo-600">Booking </span>
+          Update <span className="text-yellow-600">Booking </span>
           </h3>
         </div>
 

@@ -8,91 +8,95 @@ const jwt = require("jsonwebtoken")
 
 
 
-const register = async (req, res,next) => {
+const register = async (req, res, next) => {
   try {
-    const { name, email,institution,department, phone, userType,adminKey, password, cpassword } = req.body;
-  // console.log(process.env.ADMIN_KEY);
-  const hodExist = await User.findOne({ department , userType: "hod" });
+    const {
+      name,
+      email,
+      phone,
+      userType,
+      adminKey,
+      password,
+      cpassword,
+      eventName,
+      eventDateType,
+      eventDate,
+      eventStartDate,
+      eventEndDate,
+      startTime,
+      endTime,
+      organizingClub,
+      altNumber,
+    } = req.body;
 
-    if (userType === "admin") {
-
-      if (!name || !adminKey || !email || !phone || !userType || !password || !cpassword) {
-        return res.status(422).json({ error: "Kindly complete all fields." });
-      }else if(adminKey !== process.env.ADMIN_KEY){
-        return res.status(422).json({ error: "Provided Admin Key is Invalid." });
-      }
-    }else if(userType === "hod"){
-      if (!name || !institution || !department || !email || !phone || !userType || !password || !cpassword) {
-        return res.status(422).json({ error: "Kindly complete all fields." });
-      }else if(hodExist){
-        return res.status(422).json({ error: `Hod for ${department} already exists` });
-      }
-    }else{
-      if (!name || !institution || !department || !email || !phone || !userType || !password || !cpassword) {
-        return res.status(422).json({ error: "Kindly complete all fields." });
-      }
+    // Input validation
+    if (!name || !email || !phone || !userType || !password || !cpassword) {
+      return res.status(422).json({ error: "Kindly complete all fields." });
     }
 
-   
-    
-    // Regular expression to validate full name with at least two words separated by a space
-    const nameRegex = /^[\w'.]+\s[\w'.]+\s*[\w'.]*\s*[\w'.]*\s*[\w'.]*\s*[\w'.]*$/;
-  
-    if (!nameRegex.test(name)) {
-      return res.status(422).json({ error: "Kindly provide your complete name." });
+    // Check admin key if user type is admin
+    if (userType === "admin" && adminKey !== process.env.ADMIN_KEY) {
+      return res.status(422).json({ error: "Provided Admin Key is Invalid." });
     }
-    // Regular expression to validate email format
-    const emailRegex = /^\S+@\S+\.\S+$/;
-  
-    if (!emailRegex.test(email)) {
-      return res.status(422).json({ error: "Kindly provide a valid email address." });
-    }
-    
-    const acropolisEmailRegex = /@acropolis\.in$/;
-    const acropolisEduEmailRegex = /@acropolis\.edu\.in$/;
 
-    if (!acropolisEmailRegex.test(email) && !acropolisEduEmailRegex.test(email) ) {
-      return res.status(422).json({ error: "Kindly provide a email address associated with Acropolis Institute" });
+    // Check for existing user
+    const userExist = await User.findOne({ email });
+    if (userExist) {
+      return res.status(422).json({ error: "Provided email is associated with another account." });
     }
-    // Phone validation
-    if (phone.length !== 10) {
-      return res.status(422).json({ error: "Kindly enter a valid 10-digit phone number." });
-    }
-  
-    // Password length validation
+
+    // Password validation
     if (password.length < 7) {
-      return res.status(422).json({ error: "Password must contain at least 7 characters" });
+      return res.status(422).json({ error: "Password must contain at least 7 characters." });
     }
-  
-    if (password !== cpassword) {
-      return res.status(422).json({ error: "Password and confirm password do not match" });
-    }
-  
-   
-      
-      const userExist = await User.findOne({ email });
-      if (userExist) {
-        return res.status(422).json({ error: "Provide email is associated with another account." });
-      }
-       else {
-        let user
-        if (userType === "admin") {
-           user = new User({ name, email, phone, userType,adminKey,institution:"null",department:"null", password, cpassword });
 
-        }else{
-        
-           user = new User({ name, email, phone, userType,institution,department,adminKey:"null" ,password, cpassword });
-        }
-        // console.log(user);
-        // Perform additional validation or data processing here
-        await user.save();
-  
-        return res.status(201).json({ message: "Saved successfully" });
-      }
-    } catch (error) {
-        next(error);
+    if (password !== cpassword) {
+      return res.status(422).json({ error: "Password and confirm password do not match." });
     }
+
+    // Create new user
+    const user = new User({
+      name,
+      email,
+      phone,
+      userType,
+      adminKey: userType === "admin" ? adminKey : "null",
+      password,
+      cpassword,
+    });
+
+    await user.save();
+
+    // Send verification email
+    await sendVerificationEmail(user);
+
+    res.status(201).json({ message: "Saved successfully. Please verify your email to proceed with booking." });
+  } catch (error) {
+    next(error);
   }
+};
+
+// Function to send verification email
+const sendVerificationEmail = async (user) => {
+  const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, { expiresIn: "1d" });
+  await User.findByIdAndUpdate(user._id, { verifyToken: token }, { new: true });
+
+  const mailOptions = {
+    from: process.env.SENDER_EMAIL,
+    to: user.email,
+    subject: "Email Verification",
+    html: verifyEmailTemplate(`${process.env.CLIENT_URL}/verifyEmail/${user._id}/${token}`, user),
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+    } else {
+      console.log("Email sent:", info.response);
+    }
+  });
+};
+
 
 
 
@@ -479,34 +483,23 @@ const emailVerificationLink = async (req, res,next) => {
 
 
 
-const verifyEmail = async (req, res,next) => {
-  const {id,token} = req.params
+const verifyEmail = async (req, res, next) => {
+  const { id, token } = req.params;
   try {
-      
-    const validUser = await User.findOne({_id:id,verifyToken:token})
+    const validUser = await User.findOne({ _id: id, verifyToken: token });
+    const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
-    const verifyToken = jwt.verify(token,process.env.SECRET_KEY);
-
-
-
-      if (validUser && verifyToken._id) {
-        const setUserToken = await User.findByIdAndUpdate({_id:validUser._id},{emailVerified:true})
-        setUserToken.save()
-        res.status(201).json({status:201,validUser,message:"Verify successfully"})
-      }
-      else{
-        res.status(401).json({status:401,error:"user not exist"})
-      }
-      // console.log(setUserToken);
-    
-     
-  //  // console.log(validUser); 
+    if (validUser && verifyToken._id) {
+      await User.findByIdAndUpdate(validUser._id, { emailVerified: true });
+      res.status(201).json({ status: 201, message: "Verify successfully" });
+    } else {
+      res.status(401).json({ status: 401, error: "User not exist" });
+    }
   } catch (error) {
-    // res.status(401).json({status:422,error})
     next(error);
-
   }
-}
+};
+
 
 
 

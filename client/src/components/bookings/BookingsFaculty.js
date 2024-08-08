@@ -97,7 +97,7 @@ const BookingFaculty = () => {
 
       <div className="mt-6 min-h-screen">
         <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-3xl xl:text-3xl text-center text-gray-800 font-black leading-7 ml-3 md:leading-10">
-          Your<span className="text-indigo-700"> Bookings</span> </h1>
+          Your<span className="text-yellow-700"> Bookings</span> </h1>
 
 
           <div className="flex flex-wrap my-8 justify-center">

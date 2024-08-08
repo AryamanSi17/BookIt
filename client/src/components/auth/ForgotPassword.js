@@ -151,7 +151,7 @@ setIsLoading(true)
 
 
             <h3 className="text-3xl my-8 sm:text-4xl leading-normal font-extrabold tracking-tight text-gray-900">
-              Reset <span className="text-indigo-600">Password</span>
+              Reset <span className="text-yellow-600">Password</span>
             </h3>
 
 

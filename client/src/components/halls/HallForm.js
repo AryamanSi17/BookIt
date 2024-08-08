@@ -169,7 +169,7 @@ const HallForm = () => {
             Create Hall
             </p>
             <h3 className="text-3xl sm:text-4xl leading-normal font-extrabold tracking-tight text-gray-900">
-              Create Your <span className="text-indigo-600">Hall </span>
+              Create Your <span className="text-yellow-600">Hall </span>
             </h3>
           </div>
   

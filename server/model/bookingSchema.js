@@ -4,16 +4,8 @@ const bookingSchema = new mongoose.Schema(
   { userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'USER',
-    required: true
+    required: false
   },
-  institution:{
-    type: String,
-    required: true
-  },
-    department:{
-      type: String,
-      required: true
-    },
     eventManager: {
       type: String,
       required: true
@@ -45,7 +37,7 @@ const bookingSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: true
+      required: false
     },
     
     bookedHallId: {

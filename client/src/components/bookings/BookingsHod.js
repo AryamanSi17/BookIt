@@ -204,7 +204,7 @@ const BookingsHod = () => {
 
       <div className="mt-6 min-h-screen">
         <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-3xl xl:text-3xl text-center text-gray-800 font-black leading-7 ml-3 md:leading-10">
-          Booking<span className="text-indigo-700"> Requests</span>  </h1>
+          Booking<span className="text-yellow-700"> Requests</span>  </h1>
           
 
 
@@ -266,7 +266,7 @@ const BookingsHod = () => {
                 {/* <p className="py-2 text-base text-gray-800">Sorry about that! Please visit our hompage to get where you need to go.</p> */}
                 <div>
       
-                  <Link to="/about" ><button
+                  <Link to="/profile" ><button
                     className="w-full lg:w-auto my-4 rounded-md px-1 sm:px-16 py-5 bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-opacity-50">Verify Email
                   </button>
                   </Link>

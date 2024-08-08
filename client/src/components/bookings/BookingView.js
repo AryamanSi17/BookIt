@@ -206,7 +206,7 @@ const BookingsView = () => {
                 View Booking
               </p>
               <h3 className="text-3xl sm:text-4xl leading-normal font-extrabold tracking-tight text-gray-900">
-                View <span className="text-indigo-600">Booking </span>
+                View <span className="text-yellow-600">Booking </span>
               </h3>
             </div>
             <form className="w-full" onSubmit={(e) => e.preventDefault()}>

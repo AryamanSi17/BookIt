@@ -1,15 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const cors = require("cors")
+const cors = require("cors");
 // const connectDB = require("./DB/conn");
 const cookieParser = require("cookie-parser");
 const app = express();
 app.use(cookieParser());
-
 app.use(cors({
-  credentials: true,
-  origin: true}));  
+  origin: 'http://localhost:3000', // Allow only frontend to connect
+  credentials: true
+}));
+
   
 app.set("trust proxy",1); 
 
@@ -41,5 +42,5 @@ const PORT = process.env.PORT
 
 
 app.listen(PORT, () => {
-  // console.log("Server is running on port",PORT);
+  console.log("Server is running on port",PORT);
 });
